@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Phishing Detection Web App</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔒 Phishing Detector</h1>
+        </div>
+        
+        {% if model_type == "combined" %}
+            <p class="subtitle">Combined URL + Email Analysis</p>
+        {% else %}
+            <p class="subtitle">URL Analysis</p>
+        {% endif %}
+
+        <form method="POST">
+            <div class="input-group">
+                <label for="url">URL</label>
+                <input type="text" id="url" name="url" placeholder="https://example.com">
+            </div>
+            
+            {% if model_type == "combined" %}
+                <div class="input-group">
+                    <label for="email_text">Email Content</label>
+                    <textarea id="email_text" name="email_text" rows="6" placeholder="Paste suspicious email text here..."></textarea>
+                </div>
+                <p class="help-text">💡 Provide URL, email text, or both for analysis</p>
+            {% endif %}
+            
+            <button type="submit">Analyze</button>
+        </form>
+
+        {% if source_info %}
+            <div class="source-info">{{ source_info }}</div>
+        {% endif %}
+
+        {% if result_message %}
+            <div class="result {{ result_class }}">
+                {{ result_message }}
+            </div>
+        {% endif %}
+    </div>
+</body>
+</html>
