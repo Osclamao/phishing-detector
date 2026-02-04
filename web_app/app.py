@@ -1,17 +1,26 @@
 import os
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'  # Suppress TensorFlow messages
+# MUST set these BEFORE importing TensorFlow
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 os.environ['TF_ENABLE_ONEDNN_OPTS'] = '0'
-os.environ['CUDA_VISIBLE_DEVICES'] = '-1'  # Disable GPU (save memory)
+os.environ['CUDA_VISIBLE_DEVICES'] = '-1'  # Force CPU only
+os.environ['TF_FORCE_GPU_ALLOW_GROWTH'] = 'false'
+
+import sys
 import absl.logging
 absl.logging.set_verbosity(absl.logging.ERROR)
 
 from flask import Flask, render_template, request
-import tensorflow as tf
-import tldextract
 import numpy as np
 import re
 import warnings
 warnings.filterwarnings('ignore')
+
+# Import TensorFlow AFTER setting environment variables
+import tensorflow as tf
+# Force CPU device
+tf.config.set_visible_devices([], 'GPU')
+
+import tldextract
 
 # Get absolute paths for model files
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
