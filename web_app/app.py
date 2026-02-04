@@ -13,6 +13,13 @@ import re
 import warnings
 warnings.filterwarnings('ignore')
 
+# Get absolute paths for model files
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+PARENT_DIR = os.path.dirname(BASE_DIR)
+MODEL_PATH = os.path.join(PARENT_DIR, "phishing_model_combined.h5")
+MEAN_PATH = os.path.join(PARENT_DIR, "scaler_mean_combined.npy")
+SCALE_PATH = os.path.join(PARENT_DIR, "scaler_scale_combined.npy")
+
 # Lazy load model on first request (saves memory)
 model = None
 scaler_mean = None
@@ -26,15 +33,20 @@ def load_model_once():
     if model is not None:
         return
     
-    print("Loading model...")
+    print(f"Loading model from: {MODEL_PATH}")
+    print(f"Model exists: {os.path.exists(MODEL_PATH)}")
+    
     try:
-        model = tf.keras.models.load_model("../phishing_model_combined.h5", compile=False)
-        scaler_mean = np.load("../scaler_mean_combined.npy")
-        scaler_scale = np.load("../scaler_scale_combined.npy")
+        if not os.path.exists(MODEL_PATH):
+            raise FileNotFoundError(f"Model file not found at {MODEL_PATH}")
+        
+        model = tf.keras.models.load_model(MODEL_PATH, compile=False)
+        scaler_mean = np.load(MEAN_PATH)
+        scaler_scale = np.load(SCALE_PATH)
         model_type = "combined"
         print("✓ Loaded combined model")
-    except FileNotFoundError:
-        print("✗ Combined model not found")
+    except Exception as e:
+        print(f"✗ Error loading model: {e}")
         model_type = "error"
         raise
 
@@ -84,7 +96,14 @@ def scale_features(features):
 
 @app.route("/", methods=["GET", "POST"])
 def index():
-    load_model_once()  # Lazy load on first request
+    try:
+        load_model_once()  # Lazy load on first request
+    except Exception as e:
+        return render_template("index.html", 
+                             result_class="error", 
+                             result_message=f"❌ Model loading failed: {str(e)}", 
+                             source_info=None, 
+                             model_type="error")
     
     result_class = None
     result_message = None
