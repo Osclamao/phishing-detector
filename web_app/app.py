@@ -1,34 +1,42 @@
 import os
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'  # Suppress TensorFlow info/warning messages
-os.environ['TF_ENABLE_ONEDNN_OPTS'] = '0'  # Disable oneDNN messages
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'  # Suppress TensorFlow messages
+os.environ['TF_ENABLE_ONEDNN_OPTS'] = '0'
+os.environ['CUDA_VISIBLE_DEVICES'] = '-1'  # Disable GPU (save memory)
 import absl.logging
-absl.logging.set_verbosity(absl.logging.ERROR)  # Suppress ABSL warnings
+absl.logging.set_verbosity(absl.logging.ERROR)
 
 from flask import Flask, render_template, request
 import tensorflow as tf
 import tldextract
 import numpy as np
 import re
-
-# Load model
 import warnings
-warnings.filterwarnings('ignore', category=UserWarning)
+warnings.filterwarnings('ignore')
 
-# Try to load combined model first, fallback to URL-only model
-try:
-    model = tf.keras.models.load_model("../phishing_model_combined.h5")
-    scaler_mean = np.load("../scaler_mean_combined.npy")
-    scaler_scale = np.load("../scaler_scale_combined.npy")
-    model_type = "combined"
-    print("✓ Loaded combined URL+Email model")
-except FileNotFoundError:
-    model = tf.keras.models.load_model("../phishing_model.h5")
-    scaler_mean = np.load("../scaler_mean.npy")
-    scaler_scale = np.load("../scaler_scale.npy")
-    model_type = "url_only"
-    print("✓ Loaded URL-only model")
+# Lazy load model on first request (saves memory)
+model = None
+scaler_mean = None
+scaler_scale = None
+model_type = None
 
-model.compile(optimizer='adam', loss='binary_crossentropy')
+def load_model_once():
+    """Lazy load model on first request"""
+    global model, scaler_mean, scaler_scale, model_type
+    
+    if model is not None:
+        return
+    
+    print("Loading model...")
+    try:
+        model = tf.keras.models.load_model("../phishing_model_combined.h5", compile=False)
+        scaler_mean = np.load("../scaler_mean_combined.npy")
+        scaler_scale = np.load("../scaler_scale_combined.npy")
+        model_type = "combined"
+        print("✓ Loaded combined model")
+    except FileNotFoundError:
+        print("✗ Combined model not found")
+        model_type = "error"
+        raise
 
 app = Flask(__name__)
 
@@ -76,6 +84,8 @@ def scale_features(features):
 
 @app.route("/", methods=["GET", "POST"])
 def index():
+    load_model_once()  # Lazy load on first request
+    
     result_class = None
     result_message = None
     source_info = None
@@ -148,6 +158,12 @@ def index():
             result_message = f"✅ LEGITIMATE - {(1-pred)*100:.1f}% confidence"
 
     return render_template("index.html", result_class=result_class, result_message=result_message, source_info=source_info, model_type=model_type)
+
+
+@app.route("/health")
+def health():
+    """Health check endpoint for deployment platforms"""
+    return {"status": "ok", "model_loaded": model is not None}, 200
 
 
 if __name__ == "__main__":
