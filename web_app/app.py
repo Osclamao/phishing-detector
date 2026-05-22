@@ -48,12 +48,14 @@ def load_model_once():
     try:
         if not os.path.exists(MODEL_PATH):
             raise FileNotFoundError(f"Model file not found at {MODEL_PATH}")
-        
+
         model = tf.keras.models.load_model(MODEL_PATH, compile=False)
+        print("✓ Loaded model directly")
+
         scaler_mean = np.load(MEAN_PATH)
         scaler_scale = np.load(SCALE_PATH)
         model_type = "combined"
-        print("✓ Loaded combined model")
+        print("✓ Loaded combined model successfully")
     except Exception as e:
         print(f"✗ Error loading model: {e}")
         model_type = "error"
@@ -195,4 +197,5 @@ def health():
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port)

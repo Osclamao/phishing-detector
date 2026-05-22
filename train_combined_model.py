@@ -1,6 +1,9 @@
 """
 Train combined URL + Email phishing detection model
 """
+import os
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
+os.environ['TF_ENABLE_ONEDNN_OPTS'] = '0'
 import pandas as pd
 import numpy as np
 import re
@@ -8,7 +11,7 @@ import tldextract
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Dense, Dropout
+from tensorflow.keras.layers import Dense, Dropout, Input
 
 # ===========================
 # 1. LOAD DATASETS
@@ -136,6 +139,8 @@ else:
     print(f"Total samples: {len(X)}")
     print(f"Features: {X.shape[1]} (URL only)")
 
+num_features = X.shape[1]
+
 # ===========================
 # 4. PREPROCESSING
 # ===========================
@@ -161,7 +166,8 @@ print(f"Benign: {len(y) - np.sum(y)} ({(1-np.mean(y))*100:.1f}%)")
 print("\nBuilding model...")
 
 model = Sequential([
-    Dense(64, activation="relu", input_shape=(X.shape[1],)),
+    Input(shape=(num_features,)),
+    Dense(64, activation="relu"),
     Dropout(0.3),
     Dense(32, activation="relu"),
     Dropout(0.2),

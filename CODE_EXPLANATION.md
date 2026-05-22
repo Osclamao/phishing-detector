@@ -1,3 +1,287 @@
+# Phishing Detection Project - Complete Code Explanation **Project Overview:** A machine learning-based phishing URL detection system using a shallow neural network. The system classifies URLs as benign or malicious through a web interface or command-line tool. --- ## Table of Contents 1.
+
+pasted
+
+the project will take too much time to zip. the project is phishing detection; CHAPTER THREE
+MATERIALS AND METHODS
+3.1 Methodology
+3.2 System Analysis
+3.2 1 Analysis of the existing system (Including the architecture of the existing system)
+3.2.2 Disadvantages of the existing system
+3.3 System Design
+3.3.1 The Proposed System (including the architecture of the proposed system)
+3.3.2 Algorithm/Flowchart/use case diagram or any design tool for the design of the proposed system
+3.3.3 Advantages of the proposed System
+3.4  Database Specification
+
+Show more
+May 19
+Here's a well-structured Chapter Three based on your phishing detection project:
+
+CHAPTER THREE: MATERIALS AND METHODS
+3.1 Methodology
+This project adopted a quantitative, experimental methodology based on supervised machine learning. The development followed a structured pipeline approach encompassing data collection, preprocessing, feature engineering, model training, evaluation, and deployment. The methodology was guided by the Knowledge Discovery in Databases (KDD) process, which provides a systematic framework for extracting useful patterns from data.
+
+The system was developed using Python as the primary programming language, leveraging libraries such as TensorFlow, Scikit-learn, Pandas, NumPy, and TLDExtract. A shallow neural network was selected as the classification model due to its suitability for structured, tabular data with a relatively small feature set. The final system was deployed both as a command-line interface (CLI) tool and as a Flask-based web application.
+
+3.2 System Analysis
+3.2.1 Analysis of the Existing System
+Several phishing detection approaches currently exist in practice. These include:
+
+i. Blacklist-Based Systems Traditional anti-phishing tools such as Google Safe Browsing and browser-integrated blockers rely on maintained blacklists of known malicious URLs. When a user visits a URL, it is checked against a pre-compiled database of flagged addresses.
+
+Architecture of the Existing System (Blacklist-Based):
+
+User enters URL
+       ↓
+Browser/Extension sends URL to blacklist server
+       ↓
+Server checks URL against known malicious URL database
+       ↓
+Match found? → Block/Warn user
+No match?   → Allow access
+ii. Rule-Based/Heuristic Systems Some systems apply manually crafted rules (e.g., flagging URLs with IP addresses, excessive subdomains, or suspicious TLDs) to determine legitimacy.
+
+iii. Traditional Machine Learning Systems Earlier solutions employed classifiers such as Naïve Bayes, Decision Trees, or Support Vector Machines (SVMs) trained on static datasets with hand-engineered features.
+
+3.2.2 Disadvantages of the Existing System
+Limitation	Description
+Reactive, not proactive	Blacklists only catch URLs that have already been reported; brand-new phishing URLs evade detection
+High maintenance cost	Blacklists must be continuously updated by human analysts
+Zero-day blindness	Newly registered phishing domains are invisible until flagged
+Limited scalability	Rule-based systems fail to adapt as attackers evolve their tactics
+High false negatives	Sophisticated phishing URLs mimicking legitimate sites pass heuristic checks
+No confidence scoring	Binary block/allow decisions offer no probabilistic insight
+Context ignorance	Existing systems do not analyse URL structure features dynamically
+3.3 System Design
+3.3.1 The Proposed System
+The proposed system is a machine learning-based phishing URL detection system built on a shallow neural network. Unlike blacklist or rule-based systems, it generalises patterns learned from thousands of labelled URLs to classify new, previously unseen URLs in real time.
+
+The system accepts a URL as input, extracts nine (9) structural and lexical features from it, scales those features, passes them through a trained neural network, and returns a classification — benign or malicious — alongside a confidence score.
+
+Architecture of the Proposed System:
+
+         ┌─────────────────────────────────┐
+         │        User Interface           │
+         │  (Web App / CLI Terminal)       │
+         └────────────────┬────────────────┘
+                          │ URL Input
+                          ▼
+         ┌─────────────────────────────────┐
+         │      Feature Extraction         │
+         │  (url_length, dot_count,        │
+         │   has_https, has_ip,            │
+         │   suspicious_tld, etc.)         │
+         └────────────────┬────────────────┘
+                          │ 9 Numerical Features
+                          ▼
+         ┌─────────────────────────────────┐
+         │     Feature Scaling             │
+         │  StandardScaler (mean=0, std=1) │
+         └────────────────┬────────────────┘
+                          │ Normalised Feature Vector
+                          ▼
+         ┌─────────────────────────────────┐
+         │     Shallow Neural Network      │
+         │  Input(9) → Dense(32,ReLU)      │
+         │  → Dense(16,ReLU)               │
+         │  → Dense(1, Sigmoid)            │
+         └────────────────┬────────────────┘
+                          │ Probability Score [0,1]
+                          ▼
+         ┌─────────────────────────────────┐
+         │       Classification            │
+         │  ≥ 0.5 → MALICIOUS (⚠️)         │
+         │  < 0.5 → BENIGN    (✅)         │
+         └─────────────────────────────────┘
+3.3.2 Algorithm / Flowchart / Use Case
+System Algorithm
+START
+  │
+  ├─ TRAINING PHASE:
+  │   1. Load raw datasets (urldata.csv, malicious_phish.csv)
+  │   2. Standardise and merge datasets
+  │   3. Remove duplicate URLs
+  │   4. Extract 9 features from each URL
+  │   5. Apply StandardScaler normalisation
+  │   6. Split data: 80% train / 20% test
+  │   7. Train shallow neural network (10 epochs, batch=32)
+  │   8. Evaluate accuracy on test set
+  │   9. Save model (.h5) and scaler parameters (.npy)
+  │
+  └─ PREDICTION PHASE:
+      1. Accept URL input from user
+      2. Extract 9 features from URL
+      3. Load saved scaler → normalise features
+      4. Load saved model → run prediction
+      5. IF prediction ≥ 0.5 → classify as MALICIOUS
+         ELSE → classify as BENIGN
+      6. Display result with confidence percentage
+END
+System Flowchart
+         [Start]
+            │
+     [Enter URL Input]
+            │
+  [Extract URL Features]
+  (length, dots, hyphens,
+   HTTPS, IP, TLD, etc.)
+            │
+  [Normalise Features via
+     StandardScaler]
+            │
+  [Feed into Neural Network]
+            │
+   [Output Probability Score]
+            │
+      Score ≥ 0.5?
+       /         \
+     YES          NO
+      │            │
+ [MALICIOUS]   [BENIGN]
+ [+ Confidence] [+ Confidence]
+      │            │
+       \          /
+        [Display Result]
+            │
+          [End]
+Use Case Diagram (Textual Representation)
+Actor	Use Case
+End User	Enter URL for scanning
+End User	View prediction result (benign/malicious)
+End User	View confidence score
+System	Extract URL features
+System	Normalise features
+System	Run neural network prediction
+System	Return classification result
+Developer	Train model on labelled dataset
+Developer	Update/retrain model
+Developer	Deploy web application
+3.3.3 Advantages of the Proposed System
+Proactive Detection — Classifies URLs based on structural patterns, not prior blacklist entries; capable of detecting zero-day phishing links.
+Real-Time Classification — Predictions are returned in under 100 milliseconds, making it suitable for live browsing environments.
+Confidence Scoring — Unlike binary block/allow systems, the model outputs a probability score, giving users transparency about the certainty of a result.
+Adaptability — The model can be periodically retrained with new data to adapt to evolving phishing techniques.
+Dual Interface — Available both as a web application (accessible via browser) and a CLI tool (suitable for developers and automated pipelines).
+Lightweight Architecture — The shallow neural network requires minimal computational resources compared to deep learning alternatives, enabling deployment on low-spec infrastructure.
+Extensibility — The modular codebase allows easy integration of additional features (e.g., email content analysis, WHOIS data, SSL certificate validation) without restructuring the core system.
+3.4 Database Specification
+The system relies on flat-file storage (CSV and NumPy binary formats) rather than a relational database, given the nature of the ML pipeline. The key data assets are described below:
+
+Training Dataset — clean_dataset.csv
+Field	Data Type	Description	Example
+url	String	Full URL string	https://example.com/login
+label	String → Integer	Class label (benign=0, malicious=1)	malicious / 0 or 1
+Source: Merged from urldata.csv and malicious_phish.csv
+Preprocessing: Duplicates removed, labels standardised to binary
+Label Distribution: Benign (0) and Malicious (1)
+Model Artefacts
+File	Format	Description
+phishing_model.h5	HDF5 Binary	Trained neural network weights and architecture
+scaler_mean.npy	NumPy Binary	Mean values used for feature normalisation
+scaler_scale.npy	NumPy Binary	Standard deviation values for normalisation
+Feature Vector Specification
+The model operates on the following 9 input features per URL:
+
+#	Feature Name	Type	Description
+1	url_length	Integer	Total number of characters in the URL
+2	dot_count	Integer	Number of dot (.) characters
+3	hyphen_count	Integer	Number of hyphen (-) characters
+4	at_symbol_count	Integer	Number of @ characters
+5	domain_length	Integer	Length of extracted domain name
+6	suffix_length	Integer	Length of the TLD (e.g., "com" = 3)
+7	has_https	Binary (0/1)	Whether "https" appears in the URL
+8	starts_with_http	Binary (0/1)	Whether URL begins with "http://"
+9	starts_with_https	Binary (0/1)	Whether URL begins with "https://"
+All features are normalised using StandardScaler before being passed to the model:
+
+Formula: X_scaled = (X − μ) / σ
+
+Where μ is the mean and σ is the standard deviation computed from the training set and saved to scaler_mean.npy and scaler_scale.npy respectively.
+
+This chapter has outlined the full materials and methods used in developing the phishing detection system — from data preparation and system analysis through to the neural network architecture, design artefacts, and data specifications. Chapter Four will present the implementation, testing, and results of the system.
+
+it should be in a ms word document; font 12, double line spacing, times new roman, justified
+
+May 19
+
+Ran 2 commands, viewed a file, created a file
+Ran 2 commands, viewed a file, created a file
+Your Chapter Three document is ready! Here's what's included, formatted in Times New Roman, font 12, double line spacing, justified:
+
+3.1 Methodology — KDD approach, tools and rationale
+3.2 System Analysis — Analysis of blacklist, rule-based, and traditional ML systems, with the existing system architecture described in a table, plus a full disadvantages table
+3.3 System Design — Proposed system architecture table, algorithm (training + prediction phases), flowchart table, use case table, and advantages
+3.4 Database Specification — Dataset fields, model artefacts, and all 9 features in a formatted table
+Download and open it directly in Microsoft Word. Let me know if you need any section adjusted!
+
+
+Chapter three phishing detection
+Document · DOCX 
+starting from the use case table, give them headings
+
+May 20
+
+Viewed 2 files
+Viewed 2 files
+I'll add proper table headings (e.g. "Table 1:", "Table 2:") starting from the Use Case table onward.
+
+
+Edited 4 files, ran a command, read a file
+Edited 4 files, ran a command, read a file
+Done! The four tables now have proper centred bold headings:
+
+Table 1: Use Case Descriptions of the Proposed System
+Table 2: Training Dataset Field Specification (clean_dataset.csv)
+Table 3: Model Artefact Files and Their Descriptions
+Table 4: Feature Vector Specification for Model Input
+Let me know if you'd like any other changes!
+
+
+Chapter three phishing detection
+Document · DOCX 
+how do i start it on the terminal
+
+3:28 PM
+To run the Flask web app, open your terminal and follow these steps:
+
+1. Navigate to the web_app folder
+
+bash
+cd path/to/phishing_detection_project/web_app
+2. Install dependencies (if not done yet)
+
+bash
+pip install -r ../requirements.txt
+3. Run the app
+
+bash
+python app.py
+4. Open your browser and go to:
+
+http://localhost:5000
+To use the CLI prediction tool instead:
+
+bash
+cd path/to/phishing_detection_project
+python predict_url.py
+Then just type any URL when prompted.
+
+Common issues:
+
+If python doesn't work, try python3
+Make sure phishing_model.h5 exists before running — if not, train the model first with python train_model.py
+Run app.py from inside the web_app/ folder specifically, since it uses relative paths to find the model files
+
+
+
+
+
+
+Claude is AI and can make mistakes. Please double-check responses.
+Pasted content
+18.79 KB •709 lines
+Formatting may be inconsistent from source
 # Phishing Detection Project - Complete Code Explanation
 
 **Project Overview:** A machine learning-based phishing URL detection system using a shallow neural network. The system classifies URLs as benign or malicious through a web interface or command-line tool.
