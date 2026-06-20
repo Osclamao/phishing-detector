@@ -32,3 +32,4 @@ data/*.csv
 
 # Jupyter
 *.ipynb_checkpoints/
+.env
