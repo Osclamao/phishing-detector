@@ -7,6 +7,8 @@
     <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
+    <div id="alertContainer"></div>
+    
     <div class="container">
         <div class="header">
             <h1>🔒 Phishing Detector</h1>
@@ -18,22 +20,55 @@
             <p class="subtitle">URL Analysis</p>
         {% endif %}
 
-        <form method="POST">
+        <form method="POST" id="myForm">
             <div class="input-group">
                 <label for="url">URL</label>
                 <input type="text" id="url" name="url" placeholder="https://example.com">
             </div>
             
-            {% if model_type == "combined" %}
+            {% if model_type == "combined" or model_type == "url_only" %}
                 <div class="input-group">
                     <label for="email_text">Email Content</label>
                     <textarea id="email_text" name="email_text" rows="6" placeholder="Paste suspicious email text here..."></textarea>
                 </div>
                 <p class="help-text">💡 Provide URL, email text, or both for analysis</p>
             {% endif %}
+
+            <div class="input-group">
+                <label>Scan Intelligence Mode</label>
+                <div class="scan-modes">
+                    <label class="scan-mode-option">
+                        <input type="radio" name="scan_mode" value="nn" checked>
+                        <div class="mode-text">
+                            <strong>Standard Scan</strong>
+                            <span>Local Neural Network (Fast)</span>
+                        </div>
+                    </label>
+                    <label class="scan-mode-option">
+                        <input type="radio" name="scan_mode" value="llm">
+                        <div class="mode-text">
+                            <strong>Advanced AI Scan</strong>
+                            <span>Gemini Semantic Engine (Deep Analysis)</span>
+                        </div>
+                    </label>
+                </div>
+            </div>
             
             <button type="submit">Analyze</button>
         </form>
+
+        <!-- Loading State Panel -->
+        <div id="loadingState" style="display: none; margin-top: 25px;">
+            <div class="loading-card">
+                <div class="scanner-container">
+                    <div class="scanner-line"></div>
+                    <div class="radar-ping"></div>
+                </div>
+                <div class="loading-text">
+                    <span id="loadingStatusText">Initiating security scan</span><span class="loading-dots"></span>
+                </div>
+            </div>
+        </div>
 
         {% if source_info %}
             <div class="source-info">{{ source_info }}</div>
@@ -44,6 +79,258 @@
                 {{ result_message }}
             </div>
         {% endif %}
+
+        <!-- Advanced LLM Results Panel -->
+        <div id="llmDetails" style="display: none; margin-top: 25px;">
+            <div class="details-card">
+                <div class="details-grid">
+                    <div class="grid-item">
+                        <span class="grid-label">Risk Level</span>
+                        <span id="riskBadge" class="badge"></span>
+                    </div>
+                    <div class="grid-item">
+                        <span class="grid-label">Target Brand</span>
+                        <span id="brandTarget" class="meta-val"></span>
+                    </div>
+                    <div class="grid-item">
+                        <span class="grid-label">Threat Type</span>
+                        <span id="threatType" class="meta-val"></span>
+                    </div>
+                </div>
+                
+                <div class="details-section">
+                    <h4>🔍 Detected Indicators</h4>
+                    <ul id="indicatorsList" class="details-list"></ul>
+                </div>
+                
+                <div class="details-section">
+                    <h4>📝 Analysis Reasoning</h4>
+                    <p id="reasoningText" class="reasoning-para"></p>
+                </div>
+                
+                <div class="details-section">
+                    <h4>🛡️ Recommended Actions</h4>
+                    <ul id="actionsList" class="details-list actions"></ul>
+                </div>
+                
+                <div class="details-section" style="margin-top: 25px; border-top: 1px solid #eee; padding-top: 20px; text-align: center;">
+                    <button id="reportBtn" style="width: 100%; padding: 12px; background: #f44336; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; transition: background 0.2s;">Report False Positive / Correct Result</button>
+                </div>
+            </div>
+        </div>
     </div>
+
+    <script>
+  document.getElementById('myForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    const formData = new FormData(this);
+    
+    // Reset/hide details panel first
+    document.getElementById('llmDetails').style.display = 'none';
+
+    // Remove old results from page to avoid confusion during scan
+    const oldResult = document.querySelector('.result');
+    if (oldResult) oldResult.remove();
+    const oldSource = document.querySelector('.source-info');
+    if (oldSource) oldSource.remove();
+
+    // Show loading panel
+    const loadingState = document.getElementById('loadingState');
+    loadingState.style.display = 'block';
+    
+    // Disable submit button
+    const submitBtn = document.querySelector('#myForm button[type="submit"]');
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Analyzing...';
+    
+    // Cycle loading status text
+    const statusText = document.getElementById('loadingStatusText');
+    const scanModeOption = document.querySelector('input[name="scan_mode"]:checked');
+    const scanMode = scanModeOption ? scanModeOption.value : 'nn';
+    
+    let statusMessages = [];
+    if (scanMode === 'llm') {
+        statusMessages = [
+            "Initiating Advanced AI Scan",
+            "Extracting text & URL payloads",
+            "Connecting to Gemini Semantic Engine",
+            "Analyzing email layout and tone",
+            "Checking for brand impersonation",
+            "Performing reputation heuristics",
+            "Drafting digital forensics report"
+        ];
+    } else {
+        statusMessages = [
+            "Initiating Standard Scan",
+            "Extracting URL lexical features",
+            "Extracting email body features",
+            "Checking local neural network weights",
+            "Querying reputation API caches",
+            "Verifying SSL certificate status",
+            "Parsing domain registration details"
+        ];
+    }
+    
+    let msgIndex = 0;
+    statusText.textContent = statusMessages[msgIndex];
+    const textInterval = setInterval(() => {
+        msgIndex = (msgIndex + 1) % statusMessages.length;
+        statusText.textContent = statusMessages[msgIndex];
+    }, 2000);
+
+    fetch('/', {
+      method: 'POST',
+      body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+      // Clear interval and hide loading panel
+      clearInterval(textInterval);
+      loadingState.style.display = 'none';
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Analyze';
+
+      // Create alert div at top
+      const alertContainer = document.getElementById('alertContainer');
+      const alertDiv = document.createElement('div');
+      alertDiv.className = 'alert alert-' + data.result_class;
+      
+      let content = data.result_message;
+      if (data.source_info) {
+        content += '<br><small>' + data.source_info + '</small>';
+      }
+      alertDiv.innerHTML = content;
+      
+      // Clear previous alerts and add new one
+      alertContainer.innerHTML = '';
+      alertContainer.appendChild(alertDiv);
+      
+      // Scroll to top
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      
+      // Remove alert after 5 seconds with fade out
+      setTimeout(() => {
+        alertDiv.style.opacity = '0';
+        alertDiv.style.transition = 'opacity 0.5s ease-out';
+        setTimeout(() => {
+          alertDiv.remove();
+        }, 500);
+      }, 5000);
+
+      // Also update result at bottom
+      let resultDiv = document.querySelector('.result');
+      if (resultDiv) {
+        resultDiv.className = 'result ' + data.result_class;
+        resultDiv.textContent = data.result_message;
+      } else {
+        resultDiv = document.createElement('div');
+        resultDiv.className = 'result ' + data.result_class;
+        resultDiv.textContent = data.result_message;
+        document.querySelector('form').after(resultDiv);
+      }
+
+      // Update or create source info div at bottom
+      if (data.source_info) {
+        let sourceDiv = document.querySelector('.source-info');
+        if (sourceDiv) {
+          sourceDiv.textContent = data.source_info;
+        } else {
+          sourceDiv = document.createElement('div');
+          sourceDiv.className = 'source-info';
+          sourceDiv.textContent = data.source_info;
+          resultDiv.before(sourceDiv);
+        }
+      }
+
+      // If indicators exist, populate and display the advanced details
+      if (data.indicators && data.result_class !== 'error') {
+        const detailsPanel = document.getElementById('llmDetails');
+        
+        // Set badges/meta
+        const riskBadge = document.getElementById('riskBadge');
+        riskBadge.textContent = data.risk_level || 'Unknown';
+        riskBadge.className = 'badge badge-' + (data.risk_level ? data.risk_level.toLowerCase() : 'unknown');
+        
+        document.getElementById('brandTarget').textContent = data.brand_target || 'None';
+        document.getElementById('threatType').textContent = data.threat_type || 'None';
+        document.getElementById('reasoningText').textContent = data.reasoning || 'Analysis complete.';
+        
+        // Render indicators
+        const indList = document.getElementById('indicatorsList');
+        indList.innerHTML = '';
+        if (!data.indicators || data.indicators.length === 0) {
+            indList.innerHTML = '<li>No specific indicators flagged.</li>';
+        } else {
+            data.indicators.forEach(ind => {
+                const li = document.createElement('li');
+                li.innerHTML = `<strong>[${ind.category}]</strong> ${ind.description}`;
+                indList.appendChild(li);
+            });
+        }
+        
+        // Render actions
+        const actList = document.getElementById('actionsList');
+        actList.innerHTML = '';
+        if (!data.actions || data.actions.length === 0) {
+            actList.innerHTML = '<li>No actions recommended.</li>';
+        } else {
+            data.actions.forEach(action => {
+                const li = document.createElement('li');
+                li.textContent = action;
+                actList.appendChild(li);
+            });
+        }
+        
+        // Configure manual report button
+        const reportBtn = document.getElementById('reportBtn');
+        reportBtn.disabled = false;
+        reportBtn.textContent = 'Report False Positive / Correct Result';
+        reportBtn.onclick = function() {
+            const reportData = new FormData();
+            reportData.append('url', document.getElementById('url').value);
+            const emailField = document.getElementById('email_text');
+            reportData.append('email_text', emailField ? emailField.value : '');
+            
+            reportBtn.disabled = true;
+            reportBtn.textContent = 'Submitting report...';
+            
+            fetch('/report', {
+                method: 'POST',
+                body: reportData
+            })
+            .then(res => res.json())
+            .then(resData => {
+                if (resData.status === 'success') {
+                    alert('✓ Thank you for your feedback! This query has been reported to improve model training and reduce future false positives.');
+                    reportBtn.textContent = 'Report Submitted ✓';
+                } else {
+                    alert('Reporting failed: ' + resData.message);
+                    reportBtn.disabled = false;
+                    reportBtn.textContent = 'Report False Positive / Correct Result';
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                alert('An error occurred during submission.');
+                reportBtn.disabled = false;
+                reportBtn.textContent = 'Report False Positive / Correct Result';
+            });
+        };
+        
+        // Display panel
+        detailsPanel.style.display = 'block';
+      }
+    })
+    .catch(error => {
+      // Clear interval and hide loading panel in case of error
+      clearInterval(textInterval);
+      loadingState.style.display = 'none';
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Analyze';
+      console.error('Error:', error);
+    });
+  });
+</script>
 </body>
 </html>

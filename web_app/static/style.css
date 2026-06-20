@@ -14,6 +14,16 @@ body {
     padding: 20px;
 }
 
+#alertContainer {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1000;
+    max-width: 600px;
+    width: calc(100% - 40px);
+}
+
 .container {
     width: 100%;
     max-width: 650px;
@@ -176,6 +186,48 @@ button:active {
     color: #333;
 }
 
+.alert {
+    padding: 18px 24px;
+    font-size: 16px;
+    text-align: center;
+    border-radius: 12px;
+    color: white;
+    font-weight: 600;
+    animation: slideDown 0.4s ease-out;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+    small {
+        display: block;
+        font-size: 13px;
+        font-weight: 400;
+        margin-top: 8px;
+        opacity: 0.95;
+    }
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.alert-benign {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+}
+
+.alert-malicious {
+    background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+}
+
+.alert-error {
+    background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%);
+    color: #333;
+}
+
 /* Mobile Responsive Design */
 @media screen and (max-width: 768px) {
     body {
@@ -259,6 +311,285 @@ button:active {
     }
 }
 
+/* Scan Intelligence Modes Selector */
+.scan-modes {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    margin-top: 5px;
+}
+
+.scan-mode-option {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 15px;
+    border: 2px solid #e0e0e0;
+    border-radius: 12px;
+    cursor: pointer;
+    background: #fafafa;
+    transition: all 0.3s ease;
+}
+
+.scan-mode-option:hover {
+    border-color: #667eea;
+}
+
+.scan-mode-option input[type="radio"] {
+    margin-top: 4px;
+    cursor: pointer;
+}
+
+.scan-mode-option:has(input[type="radio"]:checked) {
+    border-color: #667eea;
+    background: rgba(102, 126, 234, 0.05);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.08);
+}
+
+.mode-text strong {
+    display: block;
+    font-size: 14px;
+    color: #333;
+    margin-bottom: 2px;
+}
+
+.mode-text span {
+    font-size: 11px;
+    color: #777;
+    display: block;
+    line-height: 1.3;
+}
+
+/* Details Panel Styling */
+.details-card {
+    background: #fdfdfd;
+    border: 1px solid #eef0f5;
+    border-radius: 16px;
+    padding: 25px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+    text-align: left;
+}
+
+.details-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+    margin-bottom: 25px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #eee;
+}
+
+.grid-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.grid-label {
+    font-size: 11px;
+    color: #888;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 8px;
+    font-weight: 600;
+}
+
+.meta-val {
+    font-size: 15px;
+    font-weight: 600;
+    color: #333;
+}
+
+.badge {
+    padding: 4px 10px;
+    font-size: 12px;
+    font-weight: 700;
+    border-radius: 20px;
+    text-transform: uppercase;
+    display: inline-block;
+}
+
+.badge-high {
+    background: #ffebee;
+    color: #d32f2f;
+}
+
+.badge-medium {
+    background: #fff3e0;
+    color: #f57c00;
+}
+
+.badge-low {
+    background: #e8f5e9;
+    color: #388e3c;
+}
+
+.details-section {
+    margin-bottom: 20px;
+}
+
+.details-section h4 {
+    font-size: 13px;
+    color: #444;
+    margin-bottom: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-left: 3px solid #764ba2;
+    padding-left: 8px;
+}
+
+.details-list {
+    list-style: none;
+    padding-left: 0;
+}
+
+.details-list li {
+    font-size: 13px;
+    color: #555;
+    padding: 8px 12px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    margin-bottom: 8px;
+    border-left: 3px solid #ccc;
+    line-height: 1.4;
+}
+
+.details-list li strong {
+    color: #333;
+}
+
+.details-list.actions li {
+    background: #f1f8e9;
+    border-left-color: #8bc34a;
+    color: #33691e;
+}
+
+.reasoning-para {
+    font-size: 13px;
+    line-height: 1.5;
+    color: #555;
+    background: #f8fafc;
+    padding: 12px 15px;
+    border-radius: 10px;
+    border-left: 3px solid #3b82f6;
+}
+
+/* Sleek Security Scanner Loading Card */
+.loading-card {
+    background: #ffffff;
+    border: 1px solid #eef0f5;
+    border-radius: 16px;
+    padding: 30px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.scanner-container {
+    position: relative;
+    width: 80px;
+    height: 80px;
+    margin-bottom: 20px;
+    background: rgba(102, 126, 234, 0.05);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid rgba(102, 126, 234, 0.1);
+}
+
+.radar-ping {
+    position: absolute;
+    width: 60px;
+    height: 60px;
+    border: 2px solid #667eea;
+    border-radius: 50%;
+    animation: radar-ping-anim 1.5s infinite ease-out;
+}
+
+@keyframes radar-ping-anim {
+    0% {
+        transform: scale(0.6);
+        opacity: 1;
+    }
+    100% {
+        transform: scale(1.4);
+        opacity: 0;
+    }
+}
+
+.scanner-container::before {
+    content: "🔒";
+    font-size: 32px;
+    animation: lock-pulse 1.5s infinite ease-in-out;
+}
+
+@keyframes lock-pulse {
+    0%, 100% {
+        transform: scale(1);
+        filter: drop-shadow(0 0 0px rgba(102, 126, 234, 0));
+    }
+    50% {
+        transform: scale(1.1);
+        filter: drop-shadow(0 0 8px rgba(102, 126, 234, 0.5));
+    }
+}
+
+/* Glowing Scanning Line Sweeping Effect */
+.scanner-line {
+    position: absolute;
+    width: 100%;
+    height: 3px;
+    background: linear-gradient(90deg, transparent, #667eea, transparent);
+    top: 0;
+    left: 0;
+    animation: scan-sweep 2s infinite linear;
+}
+
+@keyframes scan-sweep {
+    0% {
+        top: 0%;
+        opacity: 0;
+    }
+    10% {
+        opacity: 1;
+    }
+    90% {
+        opacity: 1;
+    }
+    100% {
+        top: 100%;
+        opacity: 0;
+    }
+}
+
+.loading-text {
+    font-size: 15px;
+    color: #4a5568;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.loading-dots::after {
+    content: "";
+    animation: dots-anim 1.5s infinite steps(4);
+}
+
+@keyframes dots-anim {
+    0%, 20% { content: ""; }
+    40% { content: "."; }
+    60% { content: ".."; }
+    80% { content: "..."; }
+}
+
 /* Dark mode support (optional) */
 @media (prefers-color-scheme: dark) {
     body {
@@ -297,5 +628,81 @@ button:active {
         background: #333;
         color: #aaa;
         border-left-color: #667eea;
+    }
+
+    .scan-mode-option {
+        background: #2d2d2d;
+        border-color: #444;
+    }
+
+    .scan-mode-option:hover {
+        border-color: #667eea;
+    }
+
+    .scan-mode-option:has(input[type="radio"]:checked) {
+        background: rgba(102, 126, 234, 0.15);
+        border-color: #667eea;
+    }
+
+    .mode-text strong {
+        color: #fff;
+    }
+
+    .mode-text span {
+        color: #aaa;
+    }
+
+    .details-card {
+        background: #2d2d2d;
+        border-color: #3d3d3d;
+    }
+
+    .details-grid {
+        border-bottom-color: #3d3d3d;
+    }
+
+    .meta-val {
+        color: #fff;
+    }
+
+    .details-section h4 {
+        color: #ddd;
+    }
+
+    .details-list li {
+        background: #333;
+        color: #ccc;
+        border-left-color: #555;
+    }
+
+    .details-list li strong {
+        color: #fff;
+    }
+
+    .details-list.actions li {
+        background: rgba(139, 195, 74, 0.1);
+        color: #aed581;
+        border-left-color: #8bc34a;
+    }
+
+    .reasoning-para {
+        background: #333;
+        color: #ccc;
+        border-left-color: #3b82f6;
+    }
+
+    .loading-card {
+        background: #2d2d2d;
+        border-color: #3d3d3d;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    }
+
+    .scanner-container {
+        background: rgba(102, 126, 234, 0.15);
+        border-color: rgba(102, 126, 234, 0.3);
+    }
+
+    .loading-text {
+        color: #e2e8f0;
     }
 }

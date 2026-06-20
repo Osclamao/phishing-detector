@@ -61,3 +61,6 @@ urllib3==2.5.0
 Werkzeug==2.3.7
 wrapt==1.14.2
 tensorflow==2.15.0
+redis==5.0.1
+python-whois==0.8.0
+

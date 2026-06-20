@@ -1,0 +1,92 @@
+{
+  "reputation:ecampus.fuotuoke.edu.ng": {
+    "expires_at": 1781970413.6068835,
+    "value": {
+      "mode": "online",
+      "url": "ecampus.fuotuoke.edu.ng",
+      "hostname": "ecampus.fuotuoke.edu.ng",
+      "reputation_score": 100,
+      "deductions": [],
+      "safe_browsing": {
+        "status": "unconfigured",
+        "is_flagged": false,
+        "reason": "No API Key configured"
+      },
+      "ssl": {
+        "has_ssl": true,
+        "valid": true,
+        "issuer": "Let's Encrypt",
+        "subject": "ecampus.fuotuoke.edu.ng",
+        "days_to_expire": 35,
+        "expired": false,
+        "not_after": "Jul 25 15:02:15 2026 GMT"
+      },
+      "domain_age": {
+        "status": "failed",
+        "age_days": null,
+        "reason": "Could not parse creation date from WHOIS response"
+      },
+      "timestamp": 1781884013.4980953
+    }
+  },
+  "reputation:opensea.yzz.me": {
+    "expires_at": 1782053170.5262604,
+    "value": {
+      "mode": "online",
+      "url": "opensea.yzz.me",
+      "hostname": "opensea.yzz.me",
+      "reputation_score": 100,
+      "deductions": [],
+      "safe_browsing": {
+        "status": "unconfigured",
+        "is_flagged": false,
+        "reason": "No API Key configured"
+      },
+      "ssl": {
+        "has_ssl": true,
+        "valid": true,
+        "issuer": "ZeroSSL GmbH",
+        "subject": "yzz.me",
+        "days_to_expire": 85,
+        "expired": false,
+        "not_after": "Sep 13 23:59:59 2026 GMT"
+      },
+      "domain_age": {
+        "status": "failed",
+        "age_days": null,
+        "reason": "Could not parse creation date from WHOIS response"
+      },
+      "timestamp": 1781966770.4546974
+    }
+  },
+  "reputation:ec": {
+    "expires_at": 1782055173.9910455,
+    "value": {
+      "mode": "online",
+      "url": "ec",
+      "hostname": "ec",
+      "reputation_score": 95,
+      "deductions": [
+        "Missing HTTPS certificate (low penalty since domain is established)"
+      ],
+      "safe_browsing": {
+        "status": "unconfigured",
+        "is_flagged": false,
+        "reason": "No API Key configured"
+      },
+      "ssl": {
+        "has_ssl": false,
+        "valid": false,
+        "reason": "Connection failed on port 443: [Errno 11001] getaddrinfo failed",
+        "error_code": "CONNECTION_FAILED"
+      },
+      "domain_age": {
+        "status": "success",
+        "creation_date": "1991-02-01",
+        "age_days": 12923,
+        "is_new_domain": false
+      },
+      "timestamp": 1781968773.9910455
+    }
+  }
+}
